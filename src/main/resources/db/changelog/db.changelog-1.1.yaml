@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-created-by-to-athletes-table
+      author: your-name
+      changes:
+        - addColumn:
+            tableName: athlete
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
