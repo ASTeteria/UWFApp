@@ -11,13 +11,13 @@ import wushu.dto.RegisterRequestDTO;
 import wushu.service.AuthService;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/login")
+    @PostMapping("/sign-in")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }

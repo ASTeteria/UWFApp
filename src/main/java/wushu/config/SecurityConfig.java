@@ -67,7 +67,7 @@ public CorsConfigurationSource corsConfigurationSource() {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/auth/sign-in").permitAll()
                         .requestMatchers("/api/auth/register").hasRole("SUPERADMIN")
                         .anyRequest().authenticated()
                 )
