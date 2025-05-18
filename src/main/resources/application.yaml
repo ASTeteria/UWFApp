@@ -21,3 +21,6 @@ jwt:
     ttl-millis: 6000000000
   refresh-token:
     ttl-millis: 70000000000
+
+server:
+  port: 8080

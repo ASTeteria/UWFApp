@@ -45,10 +45,11 @@ export async function login(data: LoginRequestDTO) {
         throw error;
     }
 }
+
 export async function register(data: RegisterRequestDTO) {
     try {
-        console.log('Attempting register with:', { endpoint: `${API_URL}/auth/register`, data });
-        const res = await fetch(`${API_URL}/auth/register`, {
+        console.log('Attempting register with:', { endpoint: `${API_URL}/api/auth/register`, data });
+        const res = await fetch(`${API_URL}/api/auth/register`, {
             method: 'POST',
             headers: await getHeaders(),
             body: JSON.stringify(data),
@@ -79,8 +80,8 @@ export async function getCurrentUser(): Promise<UserDTO | null> {
         const cookieStore = await cookies();
         const username = cookieStore.get('username')?.value;
         if (!username) return null;
-        console.log('Fetching current user:', { endpoint: `${API_URL}/users/${username}` });
-        const res = await fetch(`${API_URL}/users/${username}`, { headers: await getHeaders() });
+        console.log('Fetching current user:', { endpoint: `${API_URL}/api/users/${username}` });
+        const res = await fetch(`${API_URL}/api/users/${username}`, { headers: await getHeaders() });
         const contentType = res.headers.get('content-type') || 'unknown';
         const body = await res.text();
         console.log('Get current user response:', { status: res.status, contentType, body });
@@ -99,7 +100,7 @@ export async function getCurrentUser(): Promise<UserDTO | null> {
 
 export async function getUsers({ page = 1 }: { page?: number }) {
     try {
-        const url = new URL(`${API_URL}/users`);
+        const url = new URL(`${API_URL}/api/users`);
         url.searchParams.set('page', String(page));
         console.log('Fetching users:', { endpoint: url.toString() });
         const res = await fetch(url.toString(), { headers: await getHeaders() });
@@ -122,8 +123,8 @@ export async function getUsers({ page = 1 }: { page?: number }) {
 
 export async function getUserByUsername(username: string) {
     try {
-        console.log('Fetching user by username:', { endpoint: `${API_URL}/users/${username}` });
-        const res = await fetch(`${API_URL}/users/${username}`, { headers: await getHeaders() });
+        console.log('Fetching user by username:', { endpoint: `${API_URL}/api/users/${username}` });
+        const res = await fetch(`${API_URL}/api/users/${username}`, { headers: await getHeaders() });
         const contentType = res.headers.get('content-type') || 'unknown';
         const body = await res.text();
         console.log('Get user by username response:', { status: res.status, contentType, body });
@@ -142,8 +143,8 @@ export async function getUserByUsername(username: string) {
 
 export async function updateUser(username: string, data: UserDTO) {
     try {
-        console.log('Updating user:', { endpoint: `${API_URL}/users/${username}`, data });
-        const res = await fetch(`${API_URL}/users/${username}`, {
+        console.log('Updating user:', { endpoint: `${API_URL}/api/users/${username}`, data });
+        const res = await fetch(`${API_URL}/api/users/${username}`, {
             method: 'PUT',
             headers: await getHeaders(),
             body: JSON.stringify(data),
@@ -166,8 +167,8 @@ export async function updateUser(username: string, data: UserDTO) {
 
 export async function deleteUser(username: string) {
     try {
-        console.log('Deleting user:', { endpoint: `${API_URL}/users/${username}` });
-        const res = await fetch(`${API_URL}/users/${username}`, {
+        console.log('Deleting user:', { endpoint: `${API_URL}/api/users/${username}` });
+        const res = await fetch(`${API_URL}/api/users/${username}`, {
             method: 'DELETE',
             headers: await getHeaders(),
         });

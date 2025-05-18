@@ -59,7 +59,7 @@ public CorsConfigurationSource corsConfigurationSource() {
     return source;
 }
 
-    // Оновіть securityFilterChain для включення CORS
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
