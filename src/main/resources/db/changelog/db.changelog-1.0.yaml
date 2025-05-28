@@ -32,8 +32,10 @@ databaseChangeLog:
                   name: program_type
                   type: VARCHAR(50)
                   constraints:
-                   nullable: false
-
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
         - createTable:
             tableName: competition_application
             columns:
@@ -91,7 +93,6 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-
         - createTable:
             tableName: contact_competition_application
             columns:
@@ -176,3 +177,45 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+        - createIndex:
+            indexName: idx_user_username
+            tableName: users
+            columns:
+              - column:
+                  name: username
+        - createIndex:
+            indexName: idx_athlete_first_name
+            tableName: athlete
+            columns:
+              - column:
+                  name: first_name
+        - createIndex:
+            indexName: idx_athlete_last_name
+            tableName: athlete
+            columns:
+              - column:
+                  name: last_name
+        - createIndex:
+            indexName: idx_competition_first_name
+            tableName: competition_application
+            columns:
+              - column:
+                  name: athlete_first_name
+        - createIndex:
+            indexName: idx_competition_last_name
+            tableName: competition_application
+            columns:
+              - column:
+                  name: athlete_last_name
+        - createIndex:
+            indexName: idx_contact_competition_first_name
+            tableName: contact_competition_application
+            columns:
+              - column:
+                  name: athlete_first_name
+        - createIndex:
+            indexName: idx_contact_competition_last_name
+            tableName: contact_competition_application
+            columns:
+              - column:
+                  name: athlete_last_name

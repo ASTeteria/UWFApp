@@ -1,6 +1,8 @@
 package wushu.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import wushu.dto.ContactCompetitionApplicationDTO;
@@ -9,9 +11,6 @@ import wushu.exception.NotFoundException;
 import wushu.mapper.ContactCompetitionApplicationMapper;
 import wushu.repository.ContactCompetitionApplicationRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ContactCompetitionApplicationService {
@@ -19,13 +18,28 @@ public class ContactCompetitionApplicationService {
     private final ContactCompetitionApplicationMapper contactCompetitionApplicationMapper;
     private final AuthService authService;
 
+    public Page<ContactCompetitionApplicationDTO> getAllApplications(Pageable pageable, String search) {
+        Page<ContactCompetitionApplication> applications;
+        if (search != null && !search.isEmpty()) {
+            applications = contactCompetitionApplicationRepository.findByAthleteFirstNameContainingIgnoreCaseOrAthleteLastNameContainingIgnoreCase(
+                    search, search, pageable);
+        } else {
+            applications = contactCompetitionApplicationRepository.findAll(pageable);
+        }
+        return applications.map(contactCompetitionApplicationMapper::toDto);
+    }
 
-    public List<ContactCompetitionApplicationDTO> getAllApplications() {
+    public Page<ContactCompetitionApplicationDTO> getApplicationsByCurrentUser(Pageable pageable, String search) {
         Long userId = getCurrentUserId();
-        return contactCompetitionApplicationRepository.findByUserId(userId)
-                .stream()
-                .map(contactCompetitionApplicationMapper::toDto)
-                .collect(Collectors.toList());
+        Page<ContactCompetitionApplication> applications;
+        if (search != null && !search.isEmpty()) {
+            applications = contactCompetitionApplicationRepository.findByUserId(userId, pageable);
+            applications = (Page<ContactCompetitionApplication>) applications.filter(a -> a.getAthleteFirstName().toLowerCase().contains(search.toLowerCase()) ||
+                    a.getAthleteLastName().toLowerCase().contains(search.toLowerCase()));
+        } else {
+            applications = contactCompetitionApplicationRepository.findByUserId(userId, pageable);
+        }
+        return applications.map(contactCompetitionApplicationMapper::toDto);
     }
 
     public ContactCompetitionApplicationDTO getApplicationById(Long id) {
@@ -53,7 +67,6 @@ public class ContactCompetitionApplicationService {
         if (!existingApplication.getUserId().equals(userId)) {
             throw new NotFoundException("Application not found");
         }
-
         existingApplication.setCompetitionName(applicationDTO.competitionName());
         existingApplication.setAthleteFirstName(applicationDTO.athleteFirstName());
         existingApplication.setAthleteLastName(applicationDTO.athleteLastName());
@@ -62,7 +75,6 @@ public class ContactCompetitionApplicationService {
         existingApplication.setAgeCategory(applicationDTO.ageCategory());
         existingApplication.setContactProgram(applicationDTO.contactProgram());
         existingApplication.setWeightCategory(applicationDTO.weightCategory());
-
         ContactCompetitionApplication updatedApplication = contactCompetitionApplicationRepository.save(existingApplication);
         return contactCompetitionApplicationMapper.toDto(updatedApplication);
     }
