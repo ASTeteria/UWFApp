@@ -1,5 +1,6 @@
 package wushu.service;
 
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,9 +9,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import wushu.dto.CompetitionApplicationDTO;
 import wushu.entity.CompetitionApplication;
+import wushu.entity.Role;
+import wushu.entity.User;
 import wushu.exception.NotFoundException;
 import wushu.mapper.CompetitionApplicationMapper;
 import wushu.repository.CompetitionApplicationRepository;
+import wushu.repository.UserRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +24,8 @@ public class CompetitionApplicationService {
     private final CompetitionApplicationRepository competitionApplicationRepository;
     private final CompetitionApplicationMapper competitionApplicationMapper;
     private final AuthService authService;
+    private final EmailService emailService;
+    private final UserRepository userRepository;
 
     public Page<CompetitionApplicationDTO> getAllApplications(Pageable pageable, String search) {
         Page<CompetitionApplication> applications;
@@ -49,13 +57,24 @@ public class CompetitionApplicationService {
         return competitionApplicationMapper.toDto(application);
     }
 
-    public CompetitionApplicationDTO createApplication(CompetitionApplicationDTO applicationDTO) {
-        CompetitionApplication application = competitionApplicationMapper.toEntity(applicationDTO);
-        Long userId = getCurrentUserId();
-        application.setUserId(userId);
-        CompetitionApplication savedApplication = competitionApplicationRepository.save(application);
-        return competitionApplicationMapper.toDto(savedApplication);
-    }
+//    public CompetitionApplicationDTO createApplication(CompetitionApplicationDTO applicationDTO) {
+//        CompetitionApplication application = competitionApplicationMapper.toEntity(applicationDTO);
+//        Long userId = getCurrentUserId();
+//        application.setUserId(userId);
+//        CompetitionApplication savedApplication = competitionApplicationRepository.save(application);
+//        return competitionApplicationMapper.toDto(savedApplication);
+//    }
+public CompetitionApplicationDTO createApplication(CompetitionApplicationDTO applicationDTO) {
+    CompetitionApplication application = competitionApplicationMapper.toEntity(applicationDTO);
+    Long userId = getCurrentUserId();
+    application.setUserId(userId);
+    CompetitionApplication savedApplication = competitionApplicationRepository.save(application);
+
+    // Відправка email модераторам
+    notifyModerators(savedApplication);
+
+    return competitionApplicationMapper.toDto(savedApplication);
+}
 
     public CompetitionApplicationDTO updateApplication(Long id, CompetitionApplicationDTO applicationDTO) {
         CompetitionApplication existingApplication = competitionApplicationRepository.findById(id)
@@ -94,5 +113,33 @@ public class CompetitionApplicationService {
 
     private boolean isCurrentUserOwner(CompetitionApplication application) {
         return application.getUserId().equals(getCurrentUserId());
+    }
+
+    private void notifyModerators(CompetitionApplication application) {
+        List<User> moderators = userRepository.findAll().stream()
+                .filter(user -> user.getRoles().contains(Role.MODERATOR))
+                .toList();
+
+        String subject = "Нова заявка на змагання";
+        String text = String.format(
+                "Нова заявка на змагання створена:<br>" +
+                        "Назва змагання: %s<br>" +
+                        "Ім'я спортсмена: %s %s<br>" +
+                        "Дата народження: %s<br>" +
+                        "Категорія: %s",
+                application.getCompetitionName(),
+                application.getAthleteFirstName(),
+                application.getAthleteLastName(),
+                application.getBirthDate(),
+                application.getAgeCategory().getDisplayName()
+        );
+
+        for (User moderator : moderators) {
+            try {
+                emailService.sendEmail(moderator.getEmail(), subject, text); // Зміна з username на email
+            } catch (MessagingException e) {
+                System.err.println("Не вдалося надіслати email модератору " + moderator.getUsername() + ": " + e.getMessage());
+            }
+        }
     }
 }

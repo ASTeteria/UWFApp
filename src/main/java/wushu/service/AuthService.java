@@ -43,65 +43,49 @@ public class AuthService {
 
         return new AuthResponseDTO(accessToken, refreshToken);
     }
+    public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isSuperAdmin = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_SUPERADMIN"));
 
-//    public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
-//        if (userRepository.findByUsername(registerRequest.username()).isPresent()){
-//            throw new RuntimeException("Ім'я вже існує");
-//        }
-//
-//        User user = new User();
-//        user. setUsername(registerRequest.username());
-//        user. setPassword(passwordEncoder.encode(registerRequest.password()));
-//        user.setRoles(List.of("ROLE_USER"));
-//        userRepository.save(user);
-//
-//        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
-//        String accessToken = jwtUtil.generateAccessToken(userDetails);
-//        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-//
-//        return new AuthResponseDTO(accessToken, refreshToken);
-//    }
-public AuthResponseDTO register(RegisterRequestDTO registerRequest) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    boolean isSuperAdmin = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .anyMatch(role -> role.equals("ROLE_SUPERADMIN"));
+        if (!isSuperAdmin) {
+            throw new RuntimeException("Тільки супер адміністратор може реєструвати нових користувачів.");
+        }
+        if (userRepository.findByUsername(registerRequest.username()).isPresent()) {
+            throw new RuntimeException("Ім'я вже існує");
+        }
+        if (userRepository.findByEmail(registerRequest.email()).isPresent()) {
+            throw new RuntimeException("Email вже існує");
+        }
 
-    if (!isSuperAdmin) {
-        throw new RuntimeException("Тільки супер адміністратор може реєструвати нових користувачів.");
-    }
-    if (userRepository.findByUsername(registerRequest.username()).isPresent()){
-        throw new RuntimeException("Ім'я вже існує");
-    }
+        User user = new User();
+        user.setUsername(registerRequest.username());
+        user.setEmail(registerRequest.email());
+        user.setPassword(passwordEncoder.encode(registerRequest.password()));
 
-    User user = new User();
-    user. setUsername(registerRequest.username());
-    user. setPassword(passwordEncoder.encode(registerRequest.password()));
+        List<Role> roles = registerRequest.roles().stream()
+                .map(String::toUpperCase)
+                .filter(roleName -> roleName.equals("ADMIN") || roleName.equals("MODERATOR") || roleName.equals("USER"))
+                .map(Role::valueOf)
+                .collect(Collectors.toList());
 
-    List<Role> roles = registerRequest.roles().stream()
-            .map(String::toUpperCase)
-            .filter(roleName -> roleName.equals("ADMIN") || roleName.equals("MODERATOR") || roleName.equals("USER"))
-            .map(Role::valueOf)
-            .collect(Collectors.toList());
+        if (roles.isEmpty()) {
+            roles.add(Role.USER);
+        }
+        user.setRoles(roles);
 
-    // Якщо список ролей порожній або містить невалідні значення, призначаємо роль USER за замовчуванням
-    if (roles.isEmpty()) {
-        roles.add(Role.USER);
-    }
-    user.setRoles(roles);
+        userRepository.save(user);
 
-    userRepository.save(user);
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+        String accessToken = jwtUtil.generateAccessToken(userDetails);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
-    UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
-    String accessToken = jwtUtil.generateAccessToken(userDetails);
-    String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-
-    return new AuthResponseDTO(accessToken, refreshToken);
+        return new AuthResponseDTO(accessToken, refreshToken);
     }
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found with username: " + username));
     }
-
 }

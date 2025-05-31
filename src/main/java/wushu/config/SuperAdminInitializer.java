@@ -22,6 +22,7 @@ public class SuperAdminInitializer implements CommandLineRunner {
         if (!userRepository.findByUsername("superadmin").isPresent()) {
             User superAdmin = new User();
             superAdmin.setUsername("superadmin");
+            superAdmin.setEmail("superadmin@example.com");
             superAdmin.setPassword(passwordEncoder.encode("superpassword"));
             superAdmin.setRoles(List.of(Role.SUPERADMIN));
             userRepository.save(superAdmin);
