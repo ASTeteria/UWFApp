@@ -44,6 +44,7 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found"));
         user.setUsername(userDTO.username());
+        user.setEmail(userDTO.email());
         if (userDTO.password() != null && !userDTO.password().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDTO.password()));
         }

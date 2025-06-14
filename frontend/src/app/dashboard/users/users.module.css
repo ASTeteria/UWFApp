@@ -1,0 +1,158 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.error {
+    background-color: #ffe6e6;
+    color: #d8000c;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.success {
+    background-color: #e6ffe6;
+    color: #008000;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.searchForm {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.searchInput {
+    flex: 1;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.searchButton {
+    padding: 10px 20px;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.searchButton:hover {
+    background-color: #005bb5;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.th, .td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.tr:hover {
+    background-color: #f5f5f5;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.actionForm {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.input {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 120px;
+}
+
+.button, .deleteButton {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button {
+    background-color: #0070f3;
+    color: white;
+}
+
+.button:hover {
+    background-color: #005bb5;
+}
+
+.deleteButton {
+    background-color: #d8000c;
+    color: white;
+}
+
+.deleteButton:hover {
+    background-color: #a30009;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.pageLink {
+    padding: 8px 12px;
+    background-color: #0070f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.pageLink:hover {
+    background-color: #005bb5;
+}
+
+.pageLink.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pageInfo {
+    font-size: 1rem;
+}
